@@ -7,7 +7,7 @@ public class BallBehavior : MonoBehaviour
     public bool holded;
     public bool GiveToAnother;
     public GameObject Target;
-    private float Speed = 0.015f;
+    private float Speed = 0.020f;
     public void InitBall(GameObject plane)
     {
         Random.seed = System.DateTime.Now.Millisecond;
