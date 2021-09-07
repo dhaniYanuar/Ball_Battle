@@ -19,23 +19,28 @@ public class TeamAttribute : MonoBehaviour
     private Color32 highlighted;
     [SerializeField]
     private Color32 nonHighlighted;
-
+    private int memberNumber=0;
+    public Dictionary<string, GameObject> members;
     // Start is called before the first frame update
     void Start()
     {
+        members = new Dictionary<string, GameObject>();
         spawnerBtn.onClick.AddListener(SpawnPawn);
     }
 
     private void SpawnPawn()
     {
-        if (GameManager.Instance.GetMarkerObj() != null && GameManager.Instance.AvalaibleMarker()
+        if (GameManager.Instance.GetMarkerObj(teamSide) != null && GameManager.Instance.AvalaibleMarker(teamSide)
             && energy.AvalaibleEnergy())
         {
-            Vector3 markerPosition = GameManager.Instance.GetMarkerObj().transform.position;
+            Vector3 markerPosition = GameManager.Instance.GetMarkerObj(teamSide).transform.position;
             var pawn = Instantiate(pawnPrefab, new Vector3(markerPosition.x, 1f, markerPosition.z), Quaternion.identity);
-            pawn.GetComponent<PawnBehavior>().InitPawn(teamSide, this);
-            GameManager.Instance.HideMarker();
+            pawn.name = "pawn" + memberNumber;
+            pawn.GetComponent<PawnBehavior>().InitPawn(teamSide, this, markerPosition);
+            members.Add(pawn.name, pawn);
+            GameManager.Instance.HideMarker(teamSide);
             energy.DecreaseEnergyBar();
+            memberNumber++;
         }
         else
         {

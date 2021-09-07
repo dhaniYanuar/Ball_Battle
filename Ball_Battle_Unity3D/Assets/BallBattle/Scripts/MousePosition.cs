@@ -7,51 +7,74 @@ public class MousePosition : MonoBehaviour
     [SerializeField]
     private GameObject markerPrefab;
 
-    public GameObject markerObj;
+    public GameObject markerObjTeam1;
+    public GameObject markerObjTeam2;
+
+    private static string Area1 = "Area1";
+    private static string Area2 = "Area2";
+    
     // Start is called before the first frame update
     void Start()
     {
-        if (markerObj !=null)
+        if (markerObjTeam1 != null)
         {
-            markerObj.SetActive(false);
+            markerObjTeam1.SetActive(false);
+        }
+        if (markerObjTeam2 != null)
+        {
+            markerObjTeam2.SetActive(false);
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        //Debug.Log(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        //Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //mouseWorldPosition.z = 0;
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray,out RaycastHit raycastHit))
             {
-                if ((raycastHit.transform.gameObject.tag == "Area1" && GameManager.Instance.playerTurn == GameManager.BEHAVIOR_TYPE.Attacker ) ||
-                    (raycastHit.transform.gameObject.tag == "Area2" && GameManager.Instance.playerTurn == GameManager.BEHAVIOR_TYPE.Defender))
+                if (raycastHit.transform.gameObject.tag == Area1)
                 {
-                    SpawnMarker(raycastHit);
+                    GameManager.Instance.markerTeam1 = true;
+                    SpawnMarker(Area1, raycastHit);
                 }
-                else
+
+                if (raycastHit.transform.gameObject.tag == Area2)
                 {
-                    Debug.Log("You Cant Spawn There....");
+                    GameManager.Instance.markerTeam1 = true;
+                    SpawnMarker(Area2, raycastHit);
                 }
                 
             }
         }
     }
 
-    private void SpawnMarker(RaycastHit raycastHit)
+    private void SpawnMarker(string area, RaycastHit raycastHit)
     {
-        if (markerObj != null)
+        if (area == Area1)
         {
-            markerObj.transform.position = raycastHit.point;
-            markerObj.SetActive(true);
+            if (markerObjTeam1 != null)
+            {
+                markerObjTeam1.transform.position = raycastHit.point;
+                markerObjTeam1.SetActive(true);
+            }
+            else
+            {
+                markerObjTeam1 = Instantiate(markerPrefab, raycastHit.point, Quaternion.identity);
+            }
         }
-        else
+        if (area == Area2)
         {
-            markerObj = Instantiate(markerPrefab, raycastHit.point, Quaternion.identity);
+            if (markerObjTeam2 != null)
+            {
+                markerObjTeam2.transform.position = raycastHit.point;
+                markerObjTeam2.SetActive(true);
+            }
+            else
+            {
+                markerObjTeam2 = Instantiate(markerPrefab, raycastHit.point, Quaternion.identity);
+            }
         }
     }
 }

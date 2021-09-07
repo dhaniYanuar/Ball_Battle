@@ -16,10 +16,14 @@ public class EnergyManager : MonoBehaviour
     [SerializeField]
     private Color32 highlighted;
     [SerializeField]
-    private Color32 nonHighlighted; 
+    private Color32 nonHighlighted;
+
+    //for controlling energyBar as index
+    bool energyFull;
 
     private void Start()
     {
+        energyFull = false;
         highlighted = transform.GetComponentInParent<TeamAttribute>().GetHighlightedColor();
         nonHighlighted = transform.GetComponentInParent<TeamAttribute>().GetNonHighlightedColor();
         Debug.Log(highlighted);
@@ -44,28 +48,32 @@ public class EnergyManager : MonoBehaviour
 
     public IEnumerator RegenerateEnergy()
     {
-        while (GameManager.Instance.gameState == GameManager.GAME_STATE.BATTLE)
+        while (true)
         {
-            if (!fillEnergyRun)
+            if (GameManager.Instance.gameState == GameManager.GAME_STATE.BATTLE)
             {
-                break;
-            }
-            if (energyBar < energySlider.Length)
-            {
-                if (energySlider[energyBar].value != energySlider[energyBar].maxValue)
+                if (!fillEnergyRun)
                 {
-                    energySlider[energyBar].value += energySpeed;
+                    break;
                 }
-                else
+                if (energyBar < energySlider.Length && !energyFull)
                 {
-                    ChangeFillColor(energySlider[energyBar], highlighted);
-                    energyBar++;
+                    if (energySlider[energyBar].value != energySlider[energyBar].maxValue)
+                    {
+                        energySlider[energyBar].value += energySpeed;
+                    }
+                    else
+                    {
+                        ChangeFillColor(energySlider[energyBar], highlighted);
+                        energyBar++;
+                    }
                 }
-            }
-            else
-            {
-                energyBar = 0;
-                break;
+                if (energyBar == energySlider.Length  && !energyFull)
+                {
+                    energyFull = true;
+                    //keep index for not out of bound
+                    energyBar--;
+                }
             }
             yield return new WaitForFixedUpdate();
         }
@@ -91,15 +99,13 @@ public class EnergyManager : MonoBehaviour
     {
         if (energyBar>0)
         {
-            Debug.Log("Stop Energybar");
             ChangeFillColor(energySlider[energyBar-2], nonHighlighted);
             ChangeFillColor(energySlider[energyBar-1], nonHighlighted);
             energySlider[energyBar - 2].value = energySlider[energyBar].value;
             energySlider[energyBar].value = 0;
             energySlider[energyBar-1].value = 0;
             energyBar -= 2;
-            //fillEnergyRun = false;
-            //StopCoroutine(RegenerateEnergy());
+            energyFull = false;
         }
     }
 
